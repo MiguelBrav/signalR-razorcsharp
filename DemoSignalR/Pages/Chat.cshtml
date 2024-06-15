@@ -1,0 +1,22 @@
+﻿@page
+@model ChatModel
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<div class="alert alert-primary text-center fw-bold">
+    <h3 class="display-4">Chat</h3>
+</div>
+
+<div class="text-center">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div>
+            <input type="text" id="messageInput" placeholder="Enter your message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+        <ul id="messagesList"></ul>
+    }
+</div>
+
+

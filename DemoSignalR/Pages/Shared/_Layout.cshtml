@@ -1,0 +1,138 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DemoSignalR</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-primary border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand text-white" asp-area="" asp-page="/Index">DemoSignalR</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-page="/Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-page="/Privacy">Privacy</a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-page="/Chat">Chat</a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post" class="form-inline" asp-page="/Logout">
+                                    <button id="logoutSession" type="submit" class="ml-2 btn text-white">Logout</button>
+                                </form>
+                            </li>
+                            <div id="session-data"
+                                 data-user-email="@User.Identity.Name"
+                                 data-user-id="@User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value"
+                                 hidden>
+                            </div>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+  
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <h4 class="mt-5">Connected users:</h4>
+                <ul id="userList"></ul>
+            }
+
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - DemoSignalR - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+
+            let sessionDataElement = document.getElementById('session-data');
+            let userEmail = sessionDataElement.dataset.userEmail;
+            let userId = sessionDataElement.dataset.userId;
+            let runtimeUrl = '@($"{HttpContextAccessor.HttpContext.Request.Scheme}://{HttpContextAccessor.HttpContext.Request.Host}")';
+
+            runtimeUrl = runtimeUrl.replace(/'/g, "\\'");
+
+            const hubUrl = `${runtimeUrl}/login-hub?userId=${userId}&userEmail=${userEmail}`;
+
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl(hubUrl)
+                .build();
+            connection.on("UpdateConnectedUsers", function (connectedUsersJson) {
+                const connectedUsers = JSON.parse(connectedUsersJson);
+                const userListElement = document.getElementById("userList");
+                userListElement.innerHTML = "";
+
+                connectedUsers.forEach(user => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `ID: ${user.UserId}, Email: ${user.UserEmail}`;
+                    userListElement.appendChild(listItem);
+                });
+            });
+
+            connection.on("ReceiveMessage", function (chatMessage) {
+                const msg = document.createElement('li');
+                msg.textContent = `${chatMessage.userEmail}: ${chatMessage.message}`;
+                document.getElementById('messagesList').appendChild(msg);
+            });
+
+            connection.start()
+                .then(() => {
+                    console.log('Connection to hub established');
+                })
+                .catch((error) => {
+                    console.error('Error connecting to hub:', error);
+                });
+
+            window.sendMessage = function () {
+                const message = document.getElementById('messageInput').value;
+                if (message.trim() !== "") {
+                    connection.invoke('SendMessage', message).catch(err => console.error(err.toString()));
+                } else {
+                    alert('Add a message');
+                }
+            };
+        });
+    </script>
+}
