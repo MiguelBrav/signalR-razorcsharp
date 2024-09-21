@@ -11,11 +11,11 @@
 <div class="text-center">
     @if (User.Identity.IsAuthenticated)
     {
-        <div>
-            <input type="text" id="messageInput" placeholder="Enter your message">
-            <button onclick="sendMessage()">Send</button>
+        <div class="input-group">
+            <input type="text" id="messageInput" class="form-control" placeholder="Enter your message">
+            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
         </div>
-        <ul id="messagesList"></ul>
+        <ul id="messagesList" class="chatList"></ul>
     }
 </div>
 

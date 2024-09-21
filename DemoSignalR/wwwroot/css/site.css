@@ -30,3 +30,7 @@ footer {
     padding: 10px 0;
     text-align: center;
 }
+
+.chatList {
+    list-style-type: none !important;
+}

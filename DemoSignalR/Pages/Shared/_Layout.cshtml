@@ -32,10 +32,9 @@
                                 <a class="nav-link text-white" asp-area="" asp-page="/Chat">Chat</a>
                             </li>
                             <li class="nav-item">
-                                <form method="post" class="form-inline" asp-page="/Logout">
-                                    <button id="logoutSession" type="submit" class="ml-2 btn text-white">Logout</button>
-                                </form>
+                                <a class="nav-link text-white" href="#" id="logoutLink">Logout</a>
                             </li>
+                            <form id="logoutForm" method="post" asp-page="/Logout" style="display:none;"></form>
                             <div id="session-data"
                                  data-user-email="@User.Identity.Name"
                                  data-user-id="@User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value"
@@ -114,6 +113,7 @@
             connection.on("ReceiveMessage", function (chatMessage) {
                 const msg = document.createElement('li');
                 msg.textContent = `${chatMessage.userEmail}: ${chatMessage.message}`;
+                msg.classList.add('bg-info', 'text-white' ,'mt-2','text-start','ps-3');
                 document.getElementById('messagesList').appendChild(msg);
             });
 
@@ -128,11 +128,27 @@
             window.sendMessage = function () {
                 const message = document.getElementById('messageInput').value;
                 if (message.trim() !== "") {
-                    connection.invoke('SendMessage', message).catch(err => console.error(err.toString()));
+                    connection.invoke('SendMessage', message)
+                        .then(() => {
+                            messageInput.value = '';
+                        })
+                        .catch(err => console.error(err.toString()));
                 } else {
                     alert('Add a message');
                 }
             };
+
+            document.getElementById('messageInput').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    window.sendMessage(); 
+                }
+            });
+        });
+
+        document.getElementById('logoutLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('logoutForm').submit();
         });
     </script>
 }
