@@ -7,7 +7,7 @@ You can checkout the project here: "https://signalrdemo.application-service.work
 
 **The email and password fields in the login are for demonstration purposes only. You can enter any email and password to test the deployment.**
 
-![App Screenshot](https://res.cloudinary.com/imgresd/image/upload/v1718425721/Github/rkrqsaewxwfa5qyhfnyn.png)
+![App Screenshot](https://res.cloudinary.com/imgresd/image/upload/v1729203163/Github/kwideu0935slh4eay2cj.png)
 
 ## Feedback
 
