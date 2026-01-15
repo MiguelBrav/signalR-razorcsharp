@@ -1,0 +1,8 @@
+services:
+  demosignalr:
+    build:
+      context: ./DemoSignalR
+      dockerfile: Dockerfile
+    container_name: demosignalr
+    ports:
+      - "8080:8080"
