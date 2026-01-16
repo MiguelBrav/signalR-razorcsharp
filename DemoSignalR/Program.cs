@@ -1,6 +1,7 @@
 using DemoSignalR.Interfaces;
 using DemoSignalR.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using PruebaSignalR.Pages.Hub;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,15 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+var forwardingOptions = new ForwardedHeadersOptions()
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardingOptions.KnownNetworks.Clear();
+forwardingOptions.KnownProxies.Clear();
+
+app.UseForwardedHeaders(forwardingOptions);
 
 if (!app.Environment.IsDevelopment())
 {
