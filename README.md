@@ -3,7 +3,7 @@ This project is a compact and efficient implementation of a real-time chat appli
 
 ## Usage example online
 
-You can checkout the project here: "https://signalrdemo.application-service.work/"
+You can checkout the project here: "https://signalr.segurab.com/"
 
 **The email and password fields in the login are for demonstration purposes only. You can enter any email and password to test the deployment.**
 
